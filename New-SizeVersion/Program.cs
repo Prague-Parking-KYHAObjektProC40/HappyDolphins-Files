@@ -10,8 +10,11 @@ public enum Vehicle
     Bike = 1,
     Mc = 2,
     Car = 4,
-    Buss = 8,
+    Buss = 16,
     MC2 = Mc + Mc
+    BIKE2 = Bike + Bike
+    BIKE3 = Bike + Bike + Bike
+    BIKE4 = Bike + Bike + Bike + Bike
 }
 
 public class VehicleInfo
