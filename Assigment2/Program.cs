@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Newtonsoft.Json;
+// using Newtonsoft.Json;
 
 namespace FordonApp
 {
@@ -249,7 +249,7 @@ namespace FordonApp
             File.WriteAllText("parkingData.json", json);
             Console.WriteLine("Parking data saved to parkingData.json.");
         }
-        */
+  
 
         // Function to load parking data from JSON
         static ParkeringsHus LoadParkingData()
@@ -265,7 +265,7 @@ namespace FordonApp
                 return new ParkeringsHus(100);
             }
         }
-
+              */
     }
 
 
@@ -285,256 +285,6 @@ namespace FordonApp
         {
             Empty,
             Busy
-        }
-
-
-        public abstract class Vehicle
-        {
-            public string RegistrationNumber { get; set; }
-            public VehicleTyp Typ { get; set; }
-            public int Size { get; set; } // Storleksegenskap
-
-            public Vehicle(string registrationNumber, VehicleTyp typ, int size)
-            {
-                RegistrationNumber = registrationNumber;
-                Typ = typ;
-                Size = size;
-            }
-
-            public abstract void Starta();
-        }
-
-
-        // Bil-klass
-        public class Car : Vehicle
-        {
-            public Car(string registreringsNummer)
-                : base(registreringsNummer, VehicleTyp.Car, 4) { }
-
-            public override void Starta()
-            {
-                Console.WriteLine($"Bilen med registreringsnummer {RegistrationNumber} startar.");
-            }
-        }
-
-        // MC-klass
-        public class MC : Vehicle
-        {
-            public MC(string registreringsNummer)
-                : base(registreringsNummer, VehicleTyp.MC, 2) { }
-
-            public override void Starta()
-            {
-                Console.WriteLine($"MC:n med registreringsnummer {RegistrationNumber} startar.");
-            }
-        }
-
-        //Buss-klass
-        public class Bus : Vehicle
-        {
-            public Bus(string registreringsNummer)
-                : base(registreringsNummer, VehicleTyp.Bus, 16) { }
-
-            public override void Starta()
-            {
-                Console.WriteLine($"Bus med registreringsnummer {RegistrationNumber} startar.");
-            }
-        }
-
-
-        //Cykel-klass
-        public class Bicycle : Vehicle
-        {
-            public Bicycle(string registreringsNummer)
-                : base(registreringsNummer, VehicleTyp.Bicycle, 1) { }
-
-            public override void Starta()
-            {
-                Console.WriteLine($"Bicycle med registreringsnummer {RegistrationNumber} startar.");
-            }
-        }
-        // Fortsättning av klasser...
-
-        // Parkeringsplats-klass
-        public class ParkingSpot
-        {
-            public int PlaceNumber { get; set; }
-            public int MaxSize { get; set; }
-            public bool GotHighCeilings { get; set; }
-            public int BusySize { get; private set; } = 0;
-            public List<Vehicle> VehicleOnLot { get; private set; } = new List<Vehicle>();
-
-            public ParkingSpot(int placeNumber, bool _HighCeilings)
-            {
-                PlaceNumber = placeNumber;
-                MaxSize = _HighCeilings ? 16 : 4;
-                GotHighCeilings = _HighCeilings;
-            }
-
-            public bool CanPark(Vehicle vehicle)
-            {
-                // Check if the spot already has a car or bus; if so, it can't accept other vehicles.
-                if (VehicleOnLot.Exists(v => v.Typ == VehicleTyp.Car || v.Typ == VehicleTyp.Bus))
-                {
-                    return false;
-                }
-
-                // Check if the vehicle is a bus, and only allow it if the spot is within 1-50 and has no other vehicles.
-                if (vehicle.Typ == VehicleTyp.Bus)
-                {
-                    return PlaceNumber <= 50 && GotHighCeilings && VehicleOnLot.Count == 0;
-                }
-
-                // Allow two MCs in a spot
-                if (vehicle.Typ == VehicleTyp.MC)
-                {
-                    return VehicleOnLot.Count(v => v.Typ == VehicleTyp.MC) < 2;
-                }
-
-                // Allow up to four bicycles in a spot
-                if (vehicle.Typ == VehicleTyp.Bicycle)
-                {
-                    return VehicleOnLot.Count(v => v.Typ == VehicleTyp.Bicycle) < 4;
-                }
-
-                // Allow one car only if the spot is empty
-                if (vehicle.Typ == VehicleTyp.Car)
-                {
-                    return VehicleOnLot.Count == 0;
-                }
-
-                return false; // Default to not allowing parking
-            }
-
-
-            public void ParkVehicle(Vehicle vehicle)
-            {
-                if (CanPark(vehicle))
-                {
-                    VehicleOnLot.Add(vehicle);
-                    BusySize += vehicle.Size;
-                    Console.WriteLine($"Vehicle {vehicle.Typ} with registration number {vehicle.RegistrationNumber} parked at spot {PlaceNumber}.");
-                }
-                else
-                {
-                    Console.WriteLine($"Spot {PlaceNumber} is not suitable for vehicle {vehicle.RegistrationNumber}.");
-                }
-            }
-
-
-            public void RemoveVehicles(Vehicle vehicle)
-            {
-                if (VehicleOnLot.Remove(vehicle))
-                {
-                    BusySize -= vehicle.Size;
-                    Console.WriteLine($"Vehicle {vehicle.Typ} with registration number {vehicle.RegistrationNumber} has left spot {PlaceNumber}.");
-                }
-            }
-        }
-
-        public class ParkeringsHus
-        {
-            private List<ParkingSpot> ParkingSpaces = new List<ParkingSpot>();
-
-            public ParkeringsHus(int totalPlatser)
-            {
-                for (int i = 1; i <= totalPlatser; i++)
-                {
-                    bool harHogtTak = i <= 50;
-                    ParkingSpaces.Add(new ParkingSpot(i, harHogtTak));
-                }
-            }
-
-            public void ParkVehicles(Vehicle vehicle)
-            {
-                var ledigPlats = ParkingSpaces.Find(plats => plats.CanPark(vehicle));
-                if (ledigPlats != null)
-                {
-                    ledigPlats.ParkVehicle(vehicle);
-                }
-                else
-                {
-                    Console.WriteLine($"Inga lediga parkeringsplatser för fordon med registreringsnummer {vehicle.RegistrationNumber}");
-                }
-            }
-
-            public void RemoveVehicles(string registreringsNummer)
-            {
-                foreach (var plats in ParkingSpaces)
-                {
-                    var vehicle = plats.VehicleOnLot.Find(f => f.RegistrationNumber == registreringsNummer);
-                    if (vehicle != null)
-                    {
-                        plats.RemoveVehicles(vehicle);
-                        return;
-                    }
-                }
-                Console.WriteLine($"Fordonet med registreringsnummer {registreringsNummer} hittades inte.");
-            }
-
-            // New method to get all parking spots
-            public List<ParkingSpot> GetAllParkingSpots()
-            {
-                return ParkingSpaces;
-            }
-
-            // New method to find a vehicle by registration number
-            public (Vehicle vehicle, int PlaceNumber)? FindVehicleByRegistration(string registreringsNummer)
-            {
-                foreach (var plats in ParkingSpaces)
-                {
-                    var vehicle = plats.VehicleOnLot.Find(f => f.RegistrationNumber == registreringsNummer);
-                    if (vehicle != null)
-                    {
-                        return (vehicle, plats.PlaceNumber);
-                    }
-                }
-                return null; // Return null if no vehicle is found
-            }
-
-            public bool MoveVehicle(string registrationNumber, int targetSpotNumber)
-            {
-                if (targetSpotNumber < 1 || targetSpotNumber > ParkingSpaces.Count)
-                {
-                    Console.WriteLine("Invalid parking spot number.");
-                    return false;
-                }
-
-                var foundSpot = FindVehicleByRegistration(registrationNumber);
-                if (!foundSpot.HasValue)
-                {
-                    Console.WriteLine("Vehicle not found.");
-                    return false;
-                }
-
-                var vehicleToMove = foundSpot.Value.vehicle;
-                int originalPlaceNumber = foundSpot.Value.PlaceNumber;
-
-                if (vehicleToMove.Typ == VehicleTyp.Bus && targetSpotNumber > 50)
-                {
-                    Console.WriteLine("Buses can only park in spots 1-50.");
-                    return false;
-                }
-
-                ParkingSpot targetSpot = ParkingSpaces[targetSpotNumber - 1];
-                if (!targetSpot.CanPark(vehicleToMove))
-                {
-                    Console.WriteLine($"Spot {targetSpotNumber} cannot accommodate this vehicle.");
-                    return false;
-                }
-
-                ParkingSpot currentSpot = ParkingSpaces[originalPlaceNumber - 1];
-                currentSpot.RemoveVehicles(vehicleToMove);
-
-                targetSpot.ParkVehicle(vehicleToMove);
-                Console.WriteLine($"Vehicle {vehicleToMove.Typ} with registration {vehicleToMove.RegistrationNumber} moved to spot {targetSpotNumber}.");
-                return true;
-            }
-
-
-
-
-
         }
     }
             
