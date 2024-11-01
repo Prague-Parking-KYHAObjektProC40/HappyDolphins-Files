@@ -1,10 +1,32 @@
-﻿namespace FordonApp
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+using Newtonsoft.Json;
+
+namespace FordonApp
 {
     class Program
     {
         static void Main(string[] args)
         {
+
+            /*ParkeringsHus parkeringsHus = LoadParkingData();*/
             ParkeringsHus parkeringsHus = new ParkeringsHus(100);
+
+            // Parking spot labels
+            string[] Parkeringsruta = {
+                "P-Ruta 1", "P-Ruta 2", "P-Ruta 3", "P-Ruta 4", "P-Ruta 5", "P-Ruta 6", "P-Ruta 7", "P-Ruta 8", "P-Ruta 9", "P-Ruta 10",
+                "P-Ruta 11", "P-Ruta 12", "P-Ruta 13", "P-Ruta 14", "P-Ruta 15", "P-Ruta 16", "P-Ruta 17", "P-Ruta 18", "P-Ruta 19", "P-Ruta 20",
+                "P-Ruta 21", "P-Ruta 22", "P-Ruta 23", "P-Ruta 24", "P-Ruta 25", "P-Ruta 26", "P-Ruta 27", "P-Ruta 28", "P-Ruta 29", "P-Ruta 30",
+                "P-Ruta 31", "P-Ruta 32", "P-Ruta 33", "P-Ruta 34", "P-Ruta 35", "P-Ruta 36", "P-Ruta 37", "P-Ruta 38", "P-Ruta 39", "P-Ruta 40",
+                "P-Ruta 41", "P-Ruta 42", "P-Ruta 43", "P-Ruta 44", "P-Ruta 45", "P-Ruta 46", "P-Ruta 47", "P-Ruta 48", "P-Ruta 49", "P-Ruta 50",
+                "P-Ruta 51", "P-Ruta 52", "P-Ruta 53", "P-Ruta 54", "P-Ruta 55", "P-Ruta 56", "P-Ruta 57", "P-Ruta 58", "P-Ruta 59", "P-Ruta 60",
+                "P-Ruta 61", "P-Ruta 62", "P-Ruta 63", "P-Ruta 64", "P-Ruta 65", "P-Ruta 66", "P-Ruta 67", "P-Ruta 68", "P-Ruta 69", "P-Ruta 70",
+                "P-Ruta 71", "P-Ruta 72", "P-Ruta 73", "P-Ruta 74", "P-Ruta 75", "P-Ruta 76", "P-Ruta 77", "P-Ruta 78", "P-Ruta 79", "P-Ruta 80",
+                "P-Ruta 81", "P-Ruta 82", "P-Ruta 83", "P-Ruta 84", "P-Ruta 85", "P-Ruta 86", "P-Ruta 87", "P-Ruta 88", "P-Ruta 89", "P-Ruta 90",
+                "P-Ruta 91", "P-Ruta 92", "P-Ruta 93", "P-Ruta 94", "P-Ruta 95", "P-Ruta 96", "P-Ruta 97", "P-Ruta 98", "P-Ruta 99", "P-Ruta 100"
+            };
 
             bool running = true;
 
@@ -18,6 +40,7 @@
                      + "\n2: Remove Customer"
                      + "\n3: View Current Vehicles Parked"
                      + "\n4: Find Vehicle"
+                     + "\n5 Move a Vehicle"
                      + "\n0: Exit Program");
 
                 string? choice = Console.ReadLine();
@@ -158,17 +181,52 @@
 
                         if (!string.IsNullOrEmpty(regNumberToMove))
                         {
-                            var foundSpot = parkeringsHus.FindVehicleByRegistration(regNumberToMove);
-                            if (foundSpot.HasValue)
+                            Console.WriteLine("Enter the target parking spot number:");
+                            if (int.TryParse(Console.ReadLine(), out int targetSpotNumber))
                             {
-                                var vehicleToMove = foundSpot.Value.vehicle;
-                                Console.WriteLine($"Moving vehicle {vehicleToMove.Typ} with registration number {vehicleToMove.RegistrationNumber}.");
-                                parkeringsHus.RemoveVehicles(regNumberToMove);
-                                parkeringsHus.ParkVehicles(vehicleToMove);
+                                bool success = parkeringsHus.MoveVehicle(regNumberToMove, targetSpotNumber);
+                                if (!success)
+                                {
+                                    Console.WriteLine("Unable to move the vehicle to the specified spot.");
+                                }
                             }
-                            else { Console.WriteLine("Vehicle not found."); }
+                            else
+                            {
+                                Console.WriteLine("Invalid input for spot number. Please enter a numeric value.");
+                            }
                         }
-                        else { Console.WriteLine("Invalid input. Please provide a registration number."); }
+                        else
+                        {
+                            Console.WriteLine("Invalid input. Please provide a registration number.");
+                        }
+                        break;
+
+                         case "6":  // New case for viewing the parking map
+                        Console.Clear();
+                        Console.WriteLine("----- Parking Map -----");
+
+                        // Get the status of each parking spot
+                        var allParkingSpots = parkeringsHus.GetAllParkingSpots();
+
+                        for (int i = 0; i < allParkingSpots.Count; i++)
+                        {
+                            var spot = allParkingSpots[i];
+                            if (spot.VehicleOnLot.Count > 0)
+                            {
+                                // Spot is occupied
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine($"{Parkeringsruta[i]} - Occupied by {spot.VehicleOnLot[0].Typ}");
+                            }
+                            else
+                            {
+                                // Spot is free
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine($"{Parkeringsruta[i]} - Available");
+                            }
+                        }
+                        Console.ResetColor();
+                        Console.WriteLine("Press any key to return to the main menu...");
+                        Console.ReadKey();
                         break;
 
 
@@ -184,10 +242,38 @@
             }
         }
 
-        // FordonApp namespace och klasser...
+        /* Function to save parking data to JSON
+        static void SaveParkingData(ParkeringsHus parkeringsHus)
+        {
+            string json = JsonConvert.SerializeObject(parkeringsHus, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText("parkingData.json", json);
+            Console.WriteLine("Parking data saved to parkingData.json.");
+        }
+        */
+
+        // Function to load parking data from JSON
+        static ParkeringsHus LoadParkingData()
+        {
+            if (File.Exists("parkingData.json"))
+            {
+                string json = File.ReadAllText("parkingData.json");
+                return JsonConvert.DeserializeObject<ParkeringsHus>(json) ?? new ParkeringsHus(100);
+            }
+            else
+            {
+                Console.WriteLine("No saved data found. Initializing with empty parking structure.");
+                return new ParkeringsHus(100);
+            }
+        }
+
+    }
 
 
-        public enum VehicleTyp
+
+    // FordonApp namespace och klasser...
+
+
+    public enum VehicleTyp
         {
             Car,
             MC,
@@ -287,11 +373,39 @@
 
             public bool CanPark(Vehicle vehicle)
             {
-                // Returnera false om platsen är upptagen eller har inte tillräcklig plats.
-                return VehicleOnLot.Count == 0 &&
-                       BusySize + vehicle.Size <= MaxSize &&
-                       (vehicle.Typ != VehicleTyp.Bus || GotHighCeilings);
+                // Check if the spot already has a car or bus; if so, it can't accept other vehicles.
+                if (VehicleOnLot.Exists(v => v.Typ == VehicleTyp.Car || v.Typ == VehicleTyp.Bus))
+                {
+                    return false;
+                }
+
+                // Check if the vehicle is a bus, and only allow it if the spot is within 1-50 and has no other vehicles.
+                if (vehicle.Typ == VehicleTyp.Bus)
+                {
+                    return PlaceNumber <= 50 && GotHighCeilings && VehicleOnLot.Count == 0;
+                }
+
+                // Allow two MCs in a spot
+                if (vehicle.Typ == VehicleTyp.MC)
+                {
+                    return VehicleOnLot.Count(v => v.Typ == VehicleTyp.MC) < 2;
+                }
+
+                // Allow up to four bicycles in a spot
+                if (vehicle.Typ == VehicleTyp.Bicycle)
+                {
+                    return VehicleOnLot.Count(v => v.Typ == VehicleTyp.Bicycle) < 4;
+                }
+
+                // Allow one car only if the spot is empty
+                if (vehicle.Typ == VehicleTyp.Car)
+                {
+                    return VehicleOnLot.Count == 0;
+                }
+
+                return false; // Default to not allowing parking
             }
+
 
             public void ParkVehicle(Vehicle vehicle)
             {
@@ -299,20 +413,21 @@
                 {
                     VehicleOnLot.Add(vehicle);
                     BusySize += vehicle.Size;
-                    Console.WriteLine($"Fordon med registreringsnummer {vehicle.RegistrationNumber} parkerat på plats {PlaceNumber}.");
+                    Console.WriteLine($"Vehicle {vehicle.Typ} with registration number {vehicle.RegistrationNumber} parked at spot {PlaceNumber}.");
                 }
                 else
                 {
-                    Console.WriteLine($"Plats {PlaceNumber} är redan upptagen eller inte lämplig för fordon {vehicle.RegistrationNumber}.");
+                    Console.WriteLine($"Spot {PlaceNumber} is not suitable for vehicle {vehicle.RegistrationNumber}.");
                 }
             }
+
 
             public void RemoveVehicles(Vehicle vehicle)
             {
                 if (VehicleOnLot.Remove(vehicle))
                 {
                     BusySize -= vehicle.Size;
-                    Console.WriteLine($"Fordon med registreringsnummer {vehicle.RegistrationNumber} har lämnat plats {PlaceNumber}.");
+                    Console.WriteLine($"Vehicle {vehicle.Typ} with registration number {vehicle.RegistrationNumber} has left spot {PlaceNumber}.");
                 }
             }
         }
@@ -376,9 +491,54 @@
                 }
                 return null; // Return null if no vehicle is found
             }
+
+            public bool MoveVehicle(string registrationNumber, int targetSpotNumber)
+            {
+                if (targetSpotNumber < 1 || targetSpotNumber > ParkingSpaces.Count)
+                {
+                    Console.WriteLine("Invalid parking spot number.");
+                    return false;
+                }
+
+                var foundSpot = FindVehicleByRegistration(registrationNumber);
+                if (!foundSpot.HasValue)
+                {
+                    Console.WriteLine("Vehicle not found.");
+                    return false;
+                }
+
+                var vehicleToMove = foundSpot.Value.vehicle;
+                int originalPlaceNumber = foundSpot.Value.PlaceNumber;
+
+                if (vehicleToMove.Typ == VehicleTyp.Bus && targetSpotNumber > 50)
+                {
+                    Console.WriteLine("Buses can only park in spots 1-50.");
+                    return false;
+                }
+
+                ParkingSpot targetSpot = ParkingSpaces[targetSpotNumber - 1];
+                if (!targetSpot.CanPark(vehicleToMove))
+                {
+                    Console.WriteLine($"Spot {targetSpotNumber} cannot accommodate this vehicle.");
+                    return false;
+                }
+
+                ParkingSpot currentSpot = ParkingSpaces[originalPlaceNumber - 1];
+                currentSpot.RemoveVehicles(vehicleToMove);
+
+                targetSpot.ParkVehicle(vehicleToMove);
+                Console.WriteLine($"Vehicle {vehicleToMove.Typ} with registration {vehicleToMove.RegistrationNumber} moved to spot {targetSpotNumber}.");
+                return true;
+            }
+
+
+
+
+
         }
     }
-}
+            
 
 
+        
 
