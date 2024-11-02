@@ -4,6 +4,10 @@ using System.IO;
 using System.Xml;
 // using Newtonsoft.Json;
 
+using Spectre.Console;
+using System.Globalization;
+using System.Linq;
+
 namespace FordonApp
 {
     public class Menu
@@ -12,6 +16,12 @@ namespace FordonApp
         ParkingGarage parkingGarage = new ParkingGarage(100);
         public ParkingSpot _parkingSpot; //kev
         public Menu(ParkingGarage parkingGarage, ParkingSpot parkingSpot) { this.parkingGarage = parkingGarage; _parkingSpot = parkingSpot; }//kev
+
+        public Menu(ParkingGarage parkingGarage)
+        {
+            this.parkingGarage = parkingGarage;
+        }
+
         // Parking spot labels
         string[] Parkeringsruta = {
                 "P-Ruta 1", "P-Ruta 2", "P-Ruta 3", "P-Ruta 4", "P-Ruta 5", "P-Ruta 6", "P-Ruta 7", "P-Ruta 8", "P-Ruta 9", "P-Ruta 10",
@@ -30,8 +40,10 @@ namespace FordonApp
             while (true)
             {
                 DisplayHeader();
-                DisplayOptions();
-                switch (Console.ReadLine()?.ToLower())
+                string selectedOption = DisplayOptions(); 
+                
+                string choice = selectedOption.Split(':')[0]; // Extract the number from the selected option
+                switch (choice)
                 {
                     case "1": AddVehicle(); break;
                     case "2": RemoveVehicle(); break;
@@ -39,35 +51,55 @@ namespace FordonApp
                     case "4": FindVehicle(); break;
                     case "5": MoveVehicle(); break;
                     case "6": ParkingMap(); break;
-                    case "0": Console.WriteLine("Exiting Program..."); Environment.Exit(0); break; //environment.exit bortagen pga spectre
-                    default: Console.WriteLine("Invalid Option. Please try again!"); break;
+                    case "0": AnsiConsole.Markup("[red]Exiting Program...[/]"); Environment.Exit(0); break;
+                    default: AnsiConsole.Markup("[red]Invalid Option. Please try again![/]"); break;
                 }
             }
         }
-        public void DisplayHeader()
+        public static void DisplayHeader()
         {
-            Console.WriteLine("<<<<<<<<<<<<<<<<<<+>>>>>>>>>>>>>>>>>>"
-                + "\n<<  Welcome to our luxury garage   >>"
-                + $"\n<<  {DateTime.Now}, {DateTime.Today.DayOfWeek}   >>"
-                + "\n<<<<<<<<<<<<<<<<<<+>>>>>>>>>>>>>>>>>>\n");
+            Console.Clear();
+            AnsiConsole.Write(
+                new FigletText(" Welcome to our luxury garage")
+                    .Centered()
+                    .Color(Color.Gold1));
+
+            AnsiConsole.MarkupLine("[bold underline]Welcome to our luxury garage[/]");
+            AnsiConsole.MarkupLine($"[dim]{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss, dddd", CultureInfo.InvariantCulture)}[/]");
+            AnsiConsole.WriteLine();
+
+            /*
+                Console.WriteLine("<<<<<<<<<<<<<<<<<<+>>>>>>>>>>>>>>>>>>"
+                              + "\n<<  Welcome to our luxury garage   >>"
+                + $"\n<<  {DateTime.Now}, {DateTime.Today.DayOfWeek}  >>"
+                           + "\n<<<<<<<<<<<<<<<<<<+>>>>>>>>>>>>>>>>>>\n");
+            */
         }
-        public void DisplayOptions()
+
+
+        public static string DisplayOptions()
         {
-            Console.WriteLine("Please choose from the menu options"
-                + "\n1: Add New Customer"
-                + "\n2: Remove Customer"
-                + "\n3: View Parked Vehicle"
-                + "\n4: Find Vehicle"
-                + "\n5: Move a Vehicle"
-                + "\n6: View Map"
-                + "\n0: Exit Program");
+            return AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Please choose from the [green]menu options[/]:")
+                    .AddChoices(new[]
+                    {
+                        "1: Add New Customer",
+                        "2: Remove Customer",
+                        "3: View Parked Vehicle",
+                        "4: Find Vehicle",
+                        "5: Move a Vehicle",
+                        "6: View Map",
+                        "0: Exit Program"
+                    }));
         }
+
         public void AddVehicle()
         {
             Console.Clear();
-            Console.WriteLine("----- Add New Customer -----");
-            Console.WriteLine("Enter 'CAR' to add a car, 'MC' to add a motorcycle, 'BUS' to add a bus, or 'BIKE' to add a bicycle: ");
-            string vehicleType = Console.ReadLine()?.ToUpper();
+            AnsiConsole.MarkupLine("[bold green]----- Add New Customer -----[/]");
+
+            string vehicleType = AnsiConsole.Ask<string>("Enter 'CAR' to add a car, 'MC' to add a motorcycle, 'BUS' to add a bus, or 'BIKE' to add a bicycle:").ToUpper();
             while (true)
             {
                 // Validation logic: 2 to 4 characters, no spaces
@@ -77,11 +109,18 @@ namespace FordonApp
                     // Validate registration number input
                     while (true)
                     {
-                        Console.WriteLine("Enter the registration number: ");
-                        registrationNumber = Console.ReadLine()?.ToUpper();
+                        registrationNumber = AnsiConsole.Ask<string>("Enter the registration number:");
+                        registrationNumber = registrationNumber.ToUpper();
+
                         // Validation logic: 1 to 10 characters, no spaces
-                        if (!string.IsNullOrEmpty(registrationNumber) && registrationNumber.Length >= 1 && registrationNumber.Length <= 10 && !registrationNumber.Contains(" ")) { break; } // Exit the inner loop if valid registration number
-                        else { Console.WriteLine("Invalid registration number. It must be between 1 to 10 characters with no spaces. Please try again."); }
+                        if (!string.IsNullOrEmpty(registrationNumber) && registrationNumber.Length >= 1 && registrationNumber.Length <= 10 && !registrationNumber.Contains(" "))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            AnsiConsole.MarkupLine("[red]Invalid registration number. It must be between 1 to 10 characters with no spaces. Please try again.[/]");
+                        }
                     }
                     // Once we have valid inputs, we create the vehicle and park it
                     if (!string.IsNullOrEmpty(vehicleType) && !string.IsNullOrEmpty(registrationNumber))
@@ -96,28 +135,43 @@ namespace FordonApp
                         };
                         if (vehicle != null)
                         {
-                            parkingGarage.ParkVehicles(vehicle, DateTime.Now); //kev
-                            Console.WriteLine("Vehicle added successfully.\n");
+                            parkingGarage.ParkVehicles(vehicle, DateTime.Now);
+                            AnsiConsole.MarkupLine("[green]Vehicle added successfully.[/]");
                             break;
                         }
-                        else { Console.WriteLine("Invalid vehicle type entered."); }
+                        else 
+                        {
+                            AnsiConsole.MarkupLine("[red]Invalid vehicle type entered.[/]");
+                        }
                     }
-                    else { Console.WriteLine("Invalid input. Please provide both vehicle type and registration number."); }
-                    //break; // Exit the outer loop after adding the vehicle
+                    else 
+                    {
+                        AnsiConsole.MarkupLine("[red]Invalid input. Please provide both vehicle type and registration number.[/]");
+                    }
+                  
                 }
-                else { Console.WriteLine("Invalid vehicle type. It must be one of CAR, MC, BUS, or BIKE with no spaces. Please try again."); } break;
-                //keV - sista else fångar inte upp, måste fixas
+                else 
+                {
+                    AnsiConsole.MarkupLine("[red]Invalid vehicle type. It must be one of CAR, MC, BUS, or BIKE with no spaces. Please try again.[/]");
+                }
+                break;
+               
             }
         }
         public void RemoveVehicle()
         {
             Console.Clear();
-            Console.WriteLine("----- Remove a Customer -----");
-            Console.WriteLine("Enter registration number to remove vehicle\nType 'EXIT' to return:");
-            string regNumberToRemove = Console.ReadLine();
+            AnsiConsole.MarkupLine("[bold red]----- Remove a Customer -----[/]");
+            string regNumberToRemove = AnsiConsole.Ask<string>("Enter registration number to remove vehicle\nType 'EXIT' to return:");
+
             if (!string.IsNullOrEmpty(regNumberToRemove))
-            { parkingGarage.RemoveVehicles(regNumberToRemove); }
-            else { Console.WriteLine("Invalid input. Please provide a registration number."); }
+            {
+                parkingGarage.RemoveVehicles(regNumberToRemove);
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[red]Invalid input. Please provide a registration number.[/]");
+            }
         }
         public void GetRemoveFee(Vehicle vehicle) //håller på
         {
@@ -126,78 +180,83 @@ namespace FordonApp
         public void ViewVehicleParked()
         {
             Console.Clear();
-            Console.WriteLine("----- Current vehicles parked -----");
+            AnsiConsole.MarkupLine("[bold yellow]----- Current vehicles parked -----[/]");
+
             foreach (var spot in parkingGarage.GetAllParkingSpots())
             {
                 if (spot.VehicleOnLot.Count > 0)
                 {
-                    Console.WriteLine($"Parking Spot {spot.PlaceNumber} contains:");
-                    foreach (var parkedVehicle in spot.VehicleOnLot.OrderBy(v => v.ParkedTime)) //kev
-                    { Console.WriteLine($"- {parkedVehicle.Type} with registration number {parkedVehicle.RegistrationNumber}, Parked since: {parkedVehicle.ParkedTime}"); } //kev
+                    AnsiConsole.MarkupLine($"[yellow]Parking Spot {spot.PlaceNumber} contains:[/]");
+                    foreach (var parkedVehicle in spot.VehicleOnLot.OrderBy(v => v.ParkedTime))
+                    {
+                        AnsiConsole.MarkupLine($"- [green]{parkedVehicle.Type}[/] with registration number [blue]{parkedVehicle.RegistrationNumber}[/], Parked since: {parkedVehicle.ParkedTime}");
+                    }
                 }
             }
-            Console.WriteLine("Press any key to continue...");
+
+            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
             Console.ReadKey();
         }
         public void FindVehicle()
         {
-            Console.Clear();
-            Console.WriteLine("Enter the registration number to find the vehicle:");
-            string regNumberToFind = Console.ReadLine();
+            AnsiConsole.Clear();
+            string regNumberToFind = AnsiConsole.Ask<string>("Enter the registration number to find the vehicle:");
+
             if (!string.IsNullOrEmpty(regNumberToFind))
             {
                 var foundVehicle = parkingGarage.FindVehicleByRegistration(regNumberToFind);
                 if (foundVehicle.HasValue)
                 {
-                    // Accessing the properties safely after null check
-                    Console.WriteLine($"Vehicle found: {foundVehicle.Value.vehicle.Type} with registration number {foundVehicle.Value.vehicle.RegistrationNumber} at spot {foundVehicle.Value.PlaceNumber}.");
+                    AnsiConsole.MarkupLine($"[green]Vehicle found:[/] {foundVehicle.Value.vehicle.Type} with registration number {foundVehicle.Value.vehicle.RegistrationNumber} at spot {foundVehicle.Value.PlaceNumber}.");
                 }
-                else { Console.WriteLine("Vehicle not found."); }
+                else
+                {
+                    AnsiConsole.MarkupLine("[red]Vehicle not found.[/]");
+                }
             }
         }
         public void MoveVehicle()
         {
-            Console.Clear();
-            Console.WriteLine("----- Move a Vehicle -----");
-            Console.WriteLine("Enter the registration number to move the vehicle:");
-            string regNumberToMove = Console.ReadLine();
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[bold yellow]----- Move a Vehicle -----[/]");
+            string regNumberToMove = AnsiConsole.Ask<string>("Enter the registration number to move the vehicle:");
+
             if (!string.IsNullOrEmpty(regNumberToMove))
             {
-                Console.WriteLine("Enter the target parking spot number:");
-                if (int.TryParse(Console.ReadLine(), out int targetSpotNumber))
+                int targetSpotNumber = AnsiConsole.Ask<int>("Enter the target parking spot number:");
+                bool success = parkingGarage.MoveVehicle(regNumberToMove, targetSpotNumber);
+
+                if (!success)
                 {
-                    bool success = parkingGarage.MoveVehicle(regNumberToMove, targetSpotNumber);
-                    if (!success)
-                    { Console.WriteLine("Unable to move the vehicle to the specified spot."); }
+                    AnsiConsole.MarkupLine("[red]Unable to move the vehicle to the specified spot.[/]");
                 }
-                else { Console.WriteLine("Invalid input for spot number. Please enter a numeric value."); }
             }
-            else { Console.WriteLine("Invalid input. Please provide a registration number."); }
+            else
+            {
+                AnsiConsole.MarkupLine("[red]Invalid input. Please provide a registration number.[/]");
+            }
         }
         public void ParkingMap()
         {
-            Console.Clear();
-            Console.WriteLine("----- Parking Map -----");
-            // Get the status of each parking spot
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[bold yellow]----- Parking Map -----[/]");
+
             var allParkingSpots = parkingGarage.GetAllParkingSpots();
+
             for (int i = 0; i < allParkingSpots.Count; i++)
             {
                 var spot = allParkingSpots[i];
                 if (spot.VehicleOnLot.Count > 0)
                 {
-                    // Spot is occupied
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"{Parkeringsruta[i]} - Occupied by {spot.VehicleOnLot[0].Type}");
+                    AnsiConsole.MarkupLine($"[red]{Parkeringsruta[i]} - Occupied by {spot.VehicleOnLot[0].Type}[/]");
                 }
                 else
                 {
-                    // Spot is free
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"{Parkeringsruta[i]} - Available");
+                    AnsiConsole.MarkupLine($"[green]{Parkeringsruta[i]} - Available[/]");
                 }
             }
-            Console.ResetColor();
-            Console.WriteLine("Press any key to return to the main menu...");
+
+            AnsiConsole.MarkupLine("[dim]Press any key to return to the main menu...[/]");
             Console.ReadKey();
         }
         //    Function to save parking data to JSON
