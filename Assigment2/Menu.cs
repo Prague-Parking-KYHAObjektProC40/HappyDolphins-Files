@@ -10,7 +10,8 @@ namespace FordonApp
     {
         /*ParkeringsHus parkeringsHus = LoadParkingData();*/
         ParkingGarage parkingGarage = new ParkingGarage(100);
-        public Menu(ParkingGarage parkingGarage) { this.parkingGarage = parkingGarage; }
+        public ParkingSpot _parkingSpot; //kev
+        public Menu(ParkingGarage parkingGarage, ParkingSpot parkingSpot) { this.parkingGarage = parkingGarage; _parkingSpot = parkingSpot; }//kev
         // Parking spot labels
         string[] Parkeringsruta = {
                 "P-Ruta 1", "P-Ruta 2", "P-Ruta 3", "P-Ruta 4", "P-Ruta 5", "P-Ruta 6", "P-Ruta 7", "P-Ruta 8", "P-Ruta 9", "P-Ruta 10",
@@ -38,7 +39,7 @@ namespace FordonApp
                     case "4": FindVehicle(); break;
                     case "5": MoveVehicle(); break;
                     case "6": ParkingMap(); break;
-                    case "0": Console.WriteLine("Exiting Program..."); Environment.Exit(0); break;
+                    case "0": Console.WriteLine("Exiting Program..."); Environment.Exit(0); break; //environment.exit bortagen pga spectre
                     default: Console.WriteLine("Invalid Option. Please try again!"); break;
                 }
             }
@@ -118,6 +119,10 @@ namespace FordonApp
             { parkingGarage.RemoveVehicles(regNumberToRemove); }
             else { Console.WriteLine("Invalid input. Please provide a registration number."); }
         }
+        public void GetRemoveFee(Vehicle vehicle) //håller på
+        {
+            double fee = _parkingSpot.CollectFee(vehicle);
+        }
         public void ViewVehicleParked()
         {
             Console.Clear();
@@ -139,7 +144,6 @@ namespace FordonApp
             Console.Clear();
             Console.WriteLine("Enter the registration number to find the vehicle:");
             string regNumberToFind = Console.ReadLine();
-
             if (!string.IsNullOrEmpty(regNumberToFind))
             {
                 var foundVehicle = parkingGarage.FindVehicleByRegistration(regNumberToFind);
@@ -157,7 +161,6 @@ namespace FordonApp
             Console.WriteLine("----- Move a Vehicle -----");
             Console.WriteLine("Enter the registration number to move the vehicle:");
             string regNumberToMove = Console.ReadLine();
-
             if (!string.IsNullOrEmpty(regNumberToMove))
             {
                 Console.WriteLine("Enter the target parking spot number:");
@@ -175,10 +178,8 @@ namespace FordonApp
         {
             Console.Clear();
             Console.WriteLine("----- Parking Map -----");
-
             // Get the status of each parking spot
             var allParkingSpots = parkingGarage.GetAllParkingSpots();
-
             for (int i = 0; i < allParkingSpots.Count; i++)
             {
                 var spot = allParkingSpots[i];
@@ -199,7 +200,6 @@ namespace FordonApp
             Console.WriteLine("Press any key to return to the main menu...");
             Console.ReadKey();
         }
-
         //    Function to save parking data to JSON
         //    static void SaveParkingData(ParkeringsHus parkeringsHus)
         //{

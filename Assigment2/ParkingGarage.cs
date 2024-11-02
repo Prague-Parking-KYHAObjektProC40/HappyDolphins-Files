@@ -72,7 +72,6 @@
             ParkingSpot currentSpot = ParkingSpaces[originalPlaceNumber - 1];
             currentSpot.RemoveVehicles(vehicleToMove);
             targetSpot.ParkVehicle(vehicleToMove);
-            Console.WriteLine($"Vehicle {vehicleToMove.Type} with registration {vehicleToMove.RegistrationNumber} moved to spot {targetSpotNumber}.");
             return true;
         }
     }

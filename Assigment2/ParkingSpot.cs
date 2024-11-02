@@ -56,7 +56,7 @@
             {
                 double fee = CollectFee(vehicle); //kev
                 BusySize -= vehicle.Size;
-                Console.WriteLine($"Vehicle {vehicle.Type} with registration number {vehicle.RegistrationNumber} has left spot {PlaceNumber}. Total fee is: {fee} CZK."); //kev
+                Console.WriteLine($"Vehicle {vehicle.Type} with registration number {vehicle.RegistrationNumber} has left spot {PlaceNumber}. Fee: {fee} CZK."); //kev
             }
         }
         public double CollectFee(Vehicle vehicle) { RemoveVehicles(vehicle); return CalculateFeeCost(vehicle); } //kev
@@ -84,8 +84,3 @@
         }
     }
 }
-
-
-
-
-
