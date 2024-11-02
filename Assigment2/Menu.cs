@@ -137,6 +137,8 @@ namespace FordonApp
                         {
                             parkingGarage.ParkVehicles(vehicle, DateTime.Now);
                             AnsiConsole.MarkupLine("[green]Vehicle added successfully.[/]");
+                            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+                            Console.ReadKey();
                             break;
                         }
                         else 
