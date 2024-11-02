@@ -5,6 +5,7 @@
     // Parkeringsplats-klass
     public class ParkingSpot
     {
+        public ParkingSpot() { }
         public int PlaceNumber { get; set; }
         public int MaxSize { get; set; }
         public bool GotHighCeilings { get; set; }

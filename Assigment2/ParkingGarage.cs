@@ -1,9 +1,9 @@
 ﻿namespace FordonApp
 {
-    public class ParkeringsHus
+    public class ParkingGarage
     {
         private List<ParkingSpot> ParkingSpaces = new List<ParkingSpot>();
-        public ParkeringsHus(int totalPlatser)
+        public ParkingGarage(int totalPlatser)
         {
             for (int i = 1; i <= totalPlatser; i++)
             {
@@ -11,10 +11,6 @@
                 ParkingSpaces.Add(new ParkingSpot(i, harHogtTak));
             }
         }
-
-
-
-
         public void ParkVehicles(Vehicle vehicle)
         {
             var ledigPlats = ParkingSpaces.Find(plats => plats.CanPark(vehicle));
