@@ -15,7 +15,6 @@ namespace Assigment2
             var parkingGarage = new ParkingGarage(100);
             menu = new Menu(parkingGarage);
         }
-
         private Menu menu;
         private void Run() { menu.MainMenu(); }
     }

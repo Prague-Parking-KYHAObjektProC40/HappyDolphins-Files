@@ -228,7 +228,6 @@ namespace FordonApp
         Bus,
         Bicycle
     }
-
     public enum ParkingSpotStatus
     {
         Empty,
