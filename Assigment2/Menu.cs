@@ -70,7 +70,7 @@ namespace FordonApp
             while (true)
             {
                 // Validation logic: 2 to 4 characters, no spaces
-                if (!string.IsNullOrEmpty(vehicleType) && vehicleType.Length >= 2 && vehicleType.Length <= 4 && !vehicleType.Contains(" ")) //tagit bort "!", för att fånga upp sista else, gör inget om de är grönt på vehicletype
+                if (!string.IsNullOrEmpty(vehicleType) && vehicleType.Length >= 2 && vehicleType.Length <= 4 && !vehicleType.Contains(" "))
                 {
                     string registrationNumber = null;
                     // Validate registration number input
@@ -95,7 +95,7 @@ namespace FordonApp
                         };
                         if (vehicle != null)
                         {
-                            parkingGarage.ParkVehicles(vehicle);
+                            parkingGarage.ParkVehicles(vehicle, DateTime.Now); //kev
                             Console.WriteLine("Vehicle added successfully.\n");
                             break;
                         }
@@ -105,6 +105,7 @@ namespace FordonApp
                     //break; // Exit the outer loop after adding the vehicle
                 }
                 else { Console.WriteLine("Invalid vehicle type. It must be one of CAR, MC, BUS, or BIKE with no spaces. Please try again."); } break;
+                //keV - sista else fångar inte upp, måste fixas
             }
         }
         public void RemoveVehicle()
@@ -126,8 +127,8 @@ namespace FordonApp
                 if (spot.VehicleOnLot.Count > 0)
                 {
                     Console.WriteLine($"Parking Spot {spot.PlaceNumber} contains:");
-                    foreach (var parkedVehicle in spot.VehicleOnLot)
-                    { Console.WriteLine($"- {parkedVehicle.Type} with registration number {parkedVehicle.RegistrationNumber}"); }
+                    foreach (var parkedVehicle in spot.VehicleOnLot.OrderBy(v => v.ParkedTime)) //kev
+                    { Console.WriteLine($"- {parkedVehicle.Type} with registration number {parkedVehicle.RegistrationNumber}, Parked since: {parkedVehicle.ParkedTime}"); } //kev
                 }
             }
             Console.WriteLine("Press any key to continue...");
