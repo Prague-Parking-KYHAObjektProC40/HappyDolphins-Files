@@ -28,7 +28,6 @@ namespace FordonApp
         {
             while (true)
             {
-                Console.Clear();
                 DisplayHeader();
                 DisplayOptions();
                 switch (Console.ReadLine()?.ToLower())
@@ -68,42 +67,45 @@ namespace FordonApp
             Console.WriteLine("----- Add New Customer -----");
             Console.WriteLine("Enter 'CAR' to add a car, 'MC' to add a motorcycle, 'BUS' to add a bus, or 'BIKE' to add a bicycle: ");
             string vehicleType = Console.ReadLine()?.ToUpper();
-
-            // Validation logic: 2 to 4 characters, no spaces
-            if (!string.IsNullOrEmpty(vehicleType) && vehicleType.Length >= 2 && vehicleType.Length <= 4 && !vehicleType.Contains(" "))
+            while (true)
             {
-                string registrationNumber = null;
-                // Validate registration number input
-                while (true)
+                // Validation logic: 2 to 4 characters, no spaces
+                if (string.IsNullOrEmpty(vehicleType) && vehicleType.Length >= 2 && vehicleType.Length <= 4 && !vehicleType.Contains(" ")) //tagit bort "!", för att fånga upp sista else, gör inget om de är grönt på vehicletype
                 {
-                    Console.WriteLine("Enter the registration number: ");
-                    registrationNumber = Console.ReadLine()?.ToUpper();
-                    // Validation logic: 1 to 10 characters, no spaces
-                    if (!string.IsNullOrEmpty(registrationNumber) && registrationNumber.Length >= 1 && registrationNumber.Length <= 10 && !registrationNumber.Contains(" ")) { break; } // Exit the inner loop if valid registration number
-                    else { Console.WriteLine("Invalid registration number. It must be between 1 to 10 characters with no spaces. Please try again."); }
-                }
-                // Once we have valid inputs, we create the vehicle and park it
-                if (!string.IsNullOrEmpty(vehicleType) && !string.IsNullOrEmpty(registrationNumber))
-                {
-                    Vehicle? vehicle = vehicleType switch
+                    string registrationNumber = null;
+                    // Validate registration number input
+                    while (true)
                     {
-                        "CAR" => new Car(registrationNumber),
-                        "MC" => new MC(registrationNumber),
-                        "BUS" => new Bus(registrationNumber),
-                        "BIKE" => new Bicycle(registrationNumber),
-                        _ => null
-                    };
-                    if (vehicle != null)
-                    {
-                        parkingGarage.ParkVehicles(vehicle);
-                        Console.WriteLine("Vehicle added successfully.");
+                        Console.WriteLine("Enter the registration number: ");
+                        registrationNumber = Console.ReadLine()?.ToUpper();
+                        // Validation logic: 1 to 10 characters, no spaces
+                        if (!string.IsNullOrEmpty(registrationNumber) && registrationNumber.Length >= 1 && registrationNumber.Length <= 10 && !registrationNumber.Contains(" ")) { break; } // Exit the inner loop if valid registration number
+                        else { Console.WriteLine("Invalid registration number. It must be between 1 to 10 characters with no spaces. Please try again."); }
                     }
-                    else { Console.WriteLine("Invalid vehicle type entered."); }
+                    // Once we have valid inputs, we create the vehicle and park it
+                    if (!string.IsNullOrEmpty(vehicleType) && !string.IsNullOrEmpty(registrationNumber))
+                    {
+                        Vehicle? vehicle = vehicleType switch
+                        {
+                            "CAR" => new Car(registrationNumber),
+                            "MC" => new MC(registrationNumber),
+                            "BUS" => new Bus(registrationNumber),
+                            "BIKE" => new Bicycle(registrationNumber),
+                            _ => null
+                        };
+                        if (vehicle != null)
+                        {
+                            parkingGarage.ParkVehicles(vehicle);
+                            Console.WriteLine("Vehicle added successfully.\n");
+                            break;
+                        }
+                        else { Console.WriteLine("Invalid vehicle type entered."); }
+                    }
+                    else { Console.WriteLine("Invalid input. Please provide both vehicle type and registration number."); }
+                    //break; // Exit the outer loop after adding the vehicle
                 }
-                else { Console.WriteLine("Invalid input. Please provide both vehicle type and registration number."); }
-                //break; // Exit the outer loop after adding the vehicle
+                else { Console.WriteLine("Invalid vehicle type. It must be one of CAR, MC, BUS, or BIKE with no spaces. Please try again."); } break;
             }
-            else { Console.WriteLine("Invalid vehicle type. It must be one of CAR, MC, BUS, or BIKE with no spaces. Please try again."); }
         }
         public void RemoveVehicle()
         {
@@ -222,20 +224,7 @@ namespace FordonApp
         //}
     }
     public enum VehicleType //Kanske behöver flyttas
-    {
-        Car,
-        MC,
-        Bus,
-        Bicycle
-    }
+    { Car, MC, Bus, Bicycle }
     public enum ParkingSpotStatus
-    {
-        Empty,
-        Busy
-    }
+    { Empty, Busy }
 }
-
-
-
-
-
