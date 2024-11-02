@@ -70,7 +70,7 @@ namespace FordonApp
             while (true)
             {
                 // Validation logic: 2 to 4 characters, no spaces
-                if (string.IsNullOrEmpty(vehicleType) && vehicleType.Length >= 2 && vehicleType.Length <= 4 && !vehicleType.Contains(" ")) //tagit bort "!", för att fånga upp sista else, gör inget om de är grönt på vehicletype
+                if (!string.IsNullOrEmpty(vehicleType) && vehicleType.Length >= 2 && vehicleType.Length <= 4 && !vehicleType.Contains(" ")) //tagit bort "!", för att fånga upp sista else, gör inget om de är grönt på vehicletype
                 {
                     string registrationNumber = null;
                     // Validate registration number input
