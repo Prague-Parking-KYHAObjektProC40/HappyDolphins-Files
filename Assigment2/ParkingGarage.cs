@@ -86,8 +86,10 @@ namespace FordonApp
                 return false;
             }
             ParkingSpot currentSpot = ParkingSpaces[originalPlaceNumber - 1];
+            AnsiConsole.MarkupLine($"[green]Vehicle {vehicleToMove.Type} with registration nr. {vehicleToMove.RegistrationNumber} moved from spot: {originalPlaceNumber} to spot: {targetSpotNumber}.[/]");
+            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+            Console.ReadKey();
             currentSpot.RemoveVehicles(vehicleToMove);
-            //måste lägga till ny text när de flyttas...
             targetSpot.ParkVehicle(vehicleToMove);
             return true;
         }
