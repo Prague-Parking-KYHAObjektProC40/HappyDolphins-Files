@@ -14,9 +14,6 @@ namespace FordonApp
     {
         /*ParkeringsHus parkeringsHus = LoadParkingData();*/
         ParkingGarage parkingGarage = new ParkingGarage(100);
-        public ParkingSpot _parkingSpot; //kev
-        public Menu(ParkingGarage parkingGarage, ParkingSpot parkingSpot) { this.parkingGarage = parkingGarage; _parkingSpot = parkingSpot; }//kev
-
         public Menu(ParkingGarage parkingGarage)
         {
             this.parkingGarage = parkingGarage;
@@ -137,27 +134,27 @@ namespace FordonApp
                         {
                             parkingGarage.ParkVehicles(vehicle, DateTime.Now);
                             AnsiConsole.MarkupLine("[green]Vehicle added successfully.[/]");
-                            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
-                            Console.ReadKey();
+                            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]"); Console.ReadKey();
                             break;
                         }
                         else 
                         {
-                            AnsiConsole.MarkupLine("[red]Invalid vehicle type entered.[/]");
+                            AnsiConsole.MarkupLine("[red]Invalid vehicle type entered. Please try again.[/]");
+                            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]"); Console.ReadKey();
                         }
                     }
                     else 
                     {
-                        AnsiConsole.MarkupLine("[red]Invalid input. Please provide both vehicle type and registration number.[/]");
+                        AnsiConsole.MarkupLine("[red]Invalid input. Please provide both vehicle type and registration number. Try again.[/]");
+                        AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]"); Console.ReadKey();
                     }
-                  
                 }
                 else 
                 {
                     AnsiConsole.MarkupLine("[red]Invalid vehicle type. It must be one of CAR, MC, BUS, or BIKE with no spaces. Please try again.[/]");
+                    AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]"); Console.ReadKey();
                 }
                 break;
-               
             }
         }
         public void RemoveVehicle()
@@ -165,19 +162,14 @@ namespace FordonApp
             Console.Clear();
             AnsiConsole.MarkupLine("[bold red]----- Remove a Customer -----[/]");
             string regNumberToRemove = AnsiConsole.Ask<string>("Enter registration number to remove vehicle\nType 'EXIT' to return:");
-
             if (!string.IsNullOrEmpty(regNumberToRemove))
             {
                 parkingGarage.RemoveVehicles(regNumberToRemove);
             }
-            else
-            {
-                AnsiConsole.MarkupLine("[red]Invalid input. Please provide a registration number.[/]");
-            }
-        }
-        public void GetRemoveFee(Vehicle vehicle) //håller på
-        {
-            double fee = _parkingSpot.CollectFee(vehicle);
+            //else  //denna else behövs inte då de fångar redan upp en annan error message i parkingSpot
+            //{
+            //    AnsiConsole.MarkupLine("[red]Invalid input. Please provide a registration number.[/]");
+            //}
         }
         public void ViewVehicleParked()
         {

@@ -1,4 +1,6 @@
-﻿namespace FordonApp
+﻿using Spectre.Console;
+
+namespace FordonApp
 {
     public class ParkingGarage
     {
@@ -17,7 +19,11 @@
             if (freeSpot != null)
             { freeSpot.ParkVehicle(vehicle); }
             else
-            { Console.WriteLine($"No available parking spaces for vehicle with registration numbers: {vehicle.RegistrationNumber}"); }
+            {
+                AnsiConsole.MarkupLine($"[red]No available parking spaces for vehicle with registration numbers: {vehicle.RegistrationNumber}[/]");
+                AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+                Console.ReadKey();
+            }
         }
         public void RemoveVehicles(string registrationNumber)
         {
@@ -27,7 +33,9 @@
                 if (vehicle != null)
                 { spot.RemoveVehicles(vehicle); return; }
             }
-            Console.WriteLine($"Vehicle with registration number: {registrationNumber} does not exist in the system.");
+            AnsiConsole.MarkupLine($"[red]Vehicle with registration number: {registrationNumber} does not exist in the system.[/]");
+            AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+            Console.ReadKey();
         }
         // New method to get all parking spots
         public List<ParkingSpot> GetAllParkingSpots()
@@ -47,30 +55,39 @@
         {
             if (targetSpotNumber < 1 || targetSpotNumber > ParkingSpaces.Count)
             {
-                Console.WriteLine("Invalid parking spot number.");
+                AnsiConsole.MarkupLine("[red]Invalid parking spot number.[/]");
+                AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+                Console.ReadKey();
                 return false;
             }
             var foundSpot = FindVehicleByRegistration(registrationNumber);
             if (!foundSpot.HasValue)
             {
-                Console.WriteLine("Vehicle not found.");
+                AnsiConsole.MarkupLine("[red]Vehicle not found.[/]");
+                AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+                Console.ReadKey();
                 return false;
             }
             var vehicleToMove = foundSpot.Value.vehicle;
             int originalPlaceNumber = foundSpot.Value.PlaceNumber;
             if (vehicleToMove.Type == VehicleType.Bus && targetSpotNumber > 50)
             {
-                Console.WriteLine("Buses can only park in spots 1-50.");
+                AnsiConsole.MarkupLine("[red]Buses can only park in spots 1-50.[/]");
+                AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+                Console.ReadKey();
                 return false;
             }
             ParkingSpot targetSpot = ParkingSpaces[targetSpotNumber - 1];
             if (!targetSpot.CanPark(vehicleToMove))
             {
-                Console.WriteLine($"Spot {targetSpotNumber} cannot accommodate this vehicle.");
+                AnsiConsole.MarkupLine($"[red]Spot {targetSpotNumber} cannot accommodate this vehicle.[/]");
+                AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+                Console.ReadKey();
                 return false;
             }
             ParkingSpot currentSpot = ParkingSpaces[originalPlaceNumber - 1];
             currentSpot.RemoveVehicles(vehicleToMove);
+            //måste lägga till ny text när de flyttas...
             targetSpot.ParkVehicle(vehicleToMove);
             return true;
         }

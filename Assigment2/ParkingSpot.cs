@@ -1,4 +1,6 @@
-﻿namespace FordonApp
+﻿using Spectre.Console;
+
+namespace FordonApp
 {
     // Fortsättning av klasser...
 
@@ -43,21 +45,28 @@
             {
                 VehicleOnLot.Add(vehicle);
                 BusySize += vehicle.Size;
-                Console.WriteLine($"Vehicle {vehicle.Type} with registration number {vehicle.RegistrationNumber} parked at spot {PlaceNumber}.");
+                AnsiConsole.MarkupLine($"[green]Vehicle {vehicle.Type} with registration number {vehicle.RegistrationNumber} parked at spot {PlaceNumber}.[/]");
             }
             else
             {
-                Console.WriteLine($"Spot {PlaceNumber} is not suitable for vehicle {vehicle.RegistrationNumber}.");
+                AnsiConsole.MarkupLine($"[red]Spot {PlaceNumber} is not suitable for vehicle {vehicle.RegistrationNumber}.[/]");
             }
         }
         public void RemoveVehicles(Vehicle vehicle)
         {
             if (VehicleOnLot.Remove(vehicle))
             {
-                double fee = CollectFee(vehicle); //kev
+                GetRemoveTimeFee(vehicle, CollectFee(vehicle)); //kev
                 BusySize -= vehicle.Size;
-                Console.WriteLine($"Vehicle {vehicle.Type} with registration number {vehicle.RegistrationNumber} has left spot {PlaceNumber}. Fee: {fee} CZK."); //kev
+                AnsiConsole.MarkupLine($"[green]Vehicle {vehicle.Type} with registration number {vehicle.RegistrationNumber} has left spot {PlaceNumber}.[/]");
+                AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]");
+                Console.ReadKey();
             }
+        }
+        public void GetRemoveTimeFee(Vehicle vehicle, double removeFee) //kev
+        {
+            double fee = CollectFee(vehicle);
+            AnsiConsole.MarkupLine($"[green]Current price is: {fee} CZK, Parked since: {vehicle.ParkedTime}.[/]");
         }
         public double CollectFee(Vehicle vehicle) { RemoveVehicles(vehicle); return CalculateFeeCost(vehicle); } //kev
         public double CalculateFeeCost(Vehicle vehicle) //Kev
@@ -67,18 +76,18 @@
             double totalFee = 0;
             if (afterTimeParked > 10 &&  afterTimeParked < 120)
             {
-                if (vehicle.Type == VehicleType.Bicycle) { totalFee = (int)VehiclePrice.Bicycle * 2; }
-                else if (vehicle.Type == VehicleType.MC) { totalFee = (int)VehiclePrice.MC * 2; }
-                else if (vehicle.Type == VehicleType.Car) { totalFee = (int)VehiclePrice.Car * 2; }
-                else if (vehicle.Type == VehicleType.Bus) { totalFee = (int)VehiclePrice.Bus * 2; }
+                if (vehicle.Type == VehicleType.Bicycle) { totalFee = (int)VehiclePrice.Bicycle * 1; }
+                if (vehicle.Type == VehicleType.MC) { totalFee = (int)VehiclePrice.MC * 1; }
+                if (vehicle.Type == VehicleType.Car) { totalFee = (int)VehiclePrice.Car * 1; }
+                if (vehicle.Type == VehicleType.Bus) { totalFee = (int)VehiclePrice.Bus * 1; }
             }
             else if (timeParked.TotalMinutes >= 120)
             {
                 double parkedHours = Math.Ceiling(afterTimeParked / 60);
                 if (vehicle.Type == VehicleType.Bicycle) { totalFee = parkedHours * (int)VehiclePrice.Bicycle * 2; }
-                else if (vehicle.Type == VehicleType.MC) { totalFee = parkedHours * (int)VehiclePrice.MC * 2; }
-                else if (vehicle.Type == VehicleType.Car) { totalFee = parkedHours * (int)VehiclePrice.Car * 2; }
-                else if (vehicle.Type == VehicleType.Bus) { totalFee = parkedHours * (int)VehiclePrice.Bus * 2; }
+                if (vehicle.Type == VehicleType.MC) { totalFee = parkedHours * (int)VehiclePrice.MC * 2; }
+                if (vehicle.Type == VehicleType.Car) { totalFee = parkedHours * (int)VehiclePrice.Car * 2; }
+                if (vehicle.Type == VehicleType.Bus) { totalFee = parkedHours * (int)VehiclePrice.Bus * 2; }
             }
             return totalFee;
         }
