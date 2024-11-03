@@ -33,12 +33,13 @@ namespace FordonApp
                 "P-Ruta 91", "P-Ruta 92", "P-Ruta 93", "P-Ruta 94", "P-Ruta 95", "P-Ruta 96", "P-Ruta 97", "P-Ruta 98", "P-Ruta 99", "P-Ruta 100"
         };
         public void MainMenu()
+
         {
             while (true)
             {
                 DisplayHeader();
-                string selectedOption = DisplayOptions(); 
-                
+                string selectedOption = DisplayOptions();
+
                 string choice = selectedOption.Split(':')[0]; // Extract the number from the selected option
                 switch (choice)
                 {
@@ -57,13 +58,15 @@ namespace FordonApp
         {
             Console.Clear();
             AnsiConsole.Write(
-                new FigletText(" Welcome to our luxury garage")
+                new FigletText(" Luxury Garage")
                     .Centered()
                     .Color(Color.Gold1));
 
             AnsiConsole.MarkupLine("[bold underline]Welcome to our luxury garage[/]");
             AnsiConsole.MarkupLine($"[dim]{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss, dddd", CultureInfo.InvariantCulture)}[/]");
-            AnsiConsole.WriteLine();
+            // Call DisplayPriceList from the Price_Display class
+            Price_Display.DisplayPriceList();
+
 
             /*
                 Console.WriteLine("<<<<<<<<<<<<<<<<<<+>>>>>>>>>>>>>>>>>>"
@@ -137,19 +140,19 @@ namespace FordonApp
                             AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]"); Console.ReadKey();
                             break;
                         }
-                        else 
+                        else
                         {
                             AnsiConsole.MarkupLine("[red]Invalid vehicle type entered. Please try again.[/]");
                             AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]"); Console.ReadKey();
                         }
                     }
-                    else 
+                    else
                     {
                         AnsiConsole.MarkupLine("[red]Invalid input. Please provide both vehicle type and registration number. Try again.[/]");
                         AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]"); Console.ReadKey();
                     }
                 }
-                else 
+                else
                 {
                     AnsiConsole.MarkupLine("[red]Invalid vehicle type. It must be one of CAR, MC, BUS, or BIKE with no spaces. Please try again.[/]");
                     AnsiConsole.MarkupLine("[dim]Press any key to continue...[/]"); Console.ReadKey();
@@ -277,6 +280,11 @@ namespace FordonApp
         //    }
         //}
     }
+
+
+
+
+
     public enum VehicleType //Kanske behöver flyttas
     { Car, MC, Bus, Bicycle }
     public enum ParkingSpotStatus
